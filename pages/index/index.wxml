@@ -18,12 +18,23 @@
   <scroll-view 
     class="toilet-list {{isListCollapsed ? 'list-collapsed' : ''}}" 
     scroll-y
+    scroll-into-view="{{scrollToView}}"
+    scroll-with-animation="true"
     bindtap="onTapExpandList"
+    enhanced="true"
+    show-scrollbar="false"
   >
     <view class="list-header" wx:if="{{isListCollapsed}}">
       <view class="expand-hint">⌃ Slide up to expand</view>
     </view>
-    <view class="toilet-item" wx:for="{{toilets}}" wx:key="id" bindtap="onToiletTap" data-id="{{item.id}}">
+    <view 
+      id="toilet-{{item.id}}"
+      class="toilet-item {{selectedToiletId === item.id ? 'toilet-item-selected' : ''}}" 
+      wx:for="{{toilets}}" 
+      wx:key="id" 
+      bindtap="onToiletTap" 
+      data-id="{{item.id}}"
+    >
       <view class="toilet-info">
         <view class="toilet-name">{{item.name}}</view>
         <view class="toilet-address">{{item.address}}</view>

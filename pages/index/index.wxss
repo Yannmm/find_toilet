@@ -64,7 +64,15 @@ page {
   padding: 20rpx;
   margin: 20rpx;
   border-radius: 10rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.toilet-item-selected {
+  background: #e6f3ff;
+  border: 2rpx solid #1aad19;
+  transform: scale(1.02);
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
 }
 
 /* ... keep existing toilet item styles ... */

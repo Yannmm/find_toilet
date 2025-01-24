@@ -9,7 +9,9 @@ Page({
     markers: [],
     toilets: [],
     searchRadius: 1000, // 1000 meters
-    isListCollapsed: false // Add this to track list state
+    isListCollapsed: false, // Add this to track list state
+    selectedToiletId: null,  // Add this to track selected toilet
+    scrollToView: '' // Add this line
   },
 
   onLoad: function () {
@@ -159,10 +161,23 @@ Page({
     const markerId = e.markerId;
     const toilet = this.data.toilets.find(t => t.id === markerId);
     if (toilet) {
-      wx.showModal({
-        title: toilet.name,
-        content: `Address: ${toilet.address}\nDistance: ${toilet.distance}m`,
-        showCancel: false
+      // Update markers to show selected state
+      const markers = this.data.markers.map(marker => ({
+        ...marker,
+        iconPath: marker.id === markerId ? '/images/toilet-marker.png' : '/images/toilet-marker-active.png'
+      }));
+
+      this.setData({
+        markers: markers,
+        selectedToiletId: markerId,
+        isListCollapsed: false  // Expand list to show selected item
+      }, () => {
+        // Wait for list expansion animation
+        setTimeout(() => {
+          this.setData({
+            scrollToView: `toilet-${markerId}`
+          });
+        }, 300);
       });
     }
   },
@@ -171,10 +186,15 @@ Page({
     const toiletId = e.currentTarget.dataset.id;
     const toilet = this.data.toilets.find(t => t.id === toiletId);
     if (toilet) {
-      wx.showModal({
-        title: toilet.name,
-        content: `Address: ${toilet.address}\nDistance: ${toilet.distance}m`,
-        showCancel: false
+      // Update markers to show selected state
+      const markers = this.data.markers.map(marker => ({
+        ...marker,
+        iconPath: marker.id === toiletId ? '/images/toilet-marker.png' : '/images/toilet-marker-active.png'
+      }));
+
+      this.setData({
+        markers: markers,
+        selectedToiletId: toiletId
       });
     }
   },
