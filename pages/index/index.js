@@ -6,7 +6,8 @@ Page({
     scale: 14,
     markers: [],
     toilets: [],
-    searchRadius: 1000 // 1000 meters
+    searchRadius: 1000, // 1000 meters
+    isListCollapsed: false // Add this to track list state
   },
 
   onLoad: function () {
@@ -177,5 +178,21 @@ Page({
         showCancel: false
       });
     }
+  },
+
+  // Add these new functions
+  onRegionChange: function (e) {
+    if (e.type === 'begin') {
+      // User starts panning the map
+      this.setData({
+        isListCollapsed: true
+      });
+    }
+  },
+
+  onTapExpandList: function () {
+    this.setData({
+      isListCollapsed: false
+    });
   }
 });

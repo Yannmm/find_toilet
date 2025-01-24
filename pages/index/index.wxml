@@ -4,17 +4,25 @@
   <!-- Map Section -->
   <map
     id="toiletMap"
-    class="map"
+    class="map {{isListCollapsed ? 'map-fullscreen' : ''}}"
     longitude="{{longitude}}"
     latitude="{{latitude}}"
     scale="{{scale}}"
     markers="{{markers}}"
     show-location="true"
     bindmarkertap="onMarkerTap"
+    bindregionchange="onRegionChange"
   ></map>
 
   <!-- Toilet List Section -->
-  <scroll-view class="toilet-list" scroll-y>
+  <scroll-view 
+    class="toilet-list {{isListCollapsed ? 'list-collapsed' : ''}}" 
+    scroll-y
+    bindtap="onTapExpandList"
+  >
+    <view class="list-header" wx:if="{{isListCollapsed}}">
+      <view class="expand-hint">⌃ Slide up to expand</view>
+    </view>
     <view class="toilet-item" wx:for="{{toilets}}" wx:key="id" bindtap="onToiletTap" data-id="{{item.id}}">
       <view class="toilet-info">
         <view class="toilet-name">{{item.name}}</view>
