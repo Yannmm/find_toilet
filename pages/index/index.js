@@ -5,11 +5,19 @@ Page({
     longitude: 113.324520,
     scale: 14,
     markers: [],
-    toilets: []
+    toilets: [],
+    searchRadius: 1000 // 1000 meters
   },
 
   onLoad: function () {
-    // Request location permission first
+    // Initialize cloud
+    if (!wx.cloud) {
+      console.error('Please use WeChat version that supports cloud development');
+      return;
+    }
+    wx.cloud.init();
+
+    // Request location permission
     wx.authorize({
       scope: 'scope.userLocation',
       success: () => {
@@ -49,7 +57,7 @@ Page({
           latitude: res.latitude,
           longitude: res.longitude
         });
-        this.loadToilets();
+        this.queryNearbyToilets();
         wx.hideLoading();
       },
       fail: (err) => {
@@ -63,46 +71,88 @@ Page({
     });
   },
 
-  loadToilets: function () {
-    // Here you would typically make an API call to get toilet locations
-    // For demonstration, using mock data near the user's location
-    const mockToilets = [
-      {
-        id: 1,
-        name: 'Public Toilet A',
-        address: '123 Street Name',
-        latitude: this.data.latitude + 0.001,
-        longitude: this.data.longitude + 0.001,
-        distance: 100
-      },
-      {
-        id: 2,
-        name: 'Public Toilet B',
-        address: '456 Avenue Name',
-        latitude: this.data.latitude - 0.001,
-        longitude: this.data.longitude - 0.001,
-        distance: 200
-      }
-    ];
-
-    const markers = mockToilets.map(toilet => ({
-      id: toilet.id,
-      latitude: toilet.latitude,
-      longitude: toilet.longitude,
-      width: 30,
-      height: 30,
-      callout: {
-        content: toilet.name,
-        padding: 10,
-        borderRadius: 5,
-        display: 'BYCLICK'
-      }
-    }));
-
-    this.setData({
-      toilets: mockToilets,
-      markers: markers
+  queryNearbyToilets: function () {
+    wx.showLoading({
+      title: 'Finding toilets...',
     });
+
+    // Get nearby toilets from cloud database
+    wx.cloud.database().collection('toilets')
+      .where({
+        location: wx.cloud.database().command.geoNear({
+          geometry: wx.cloud.database().Geo.Point(this.data.longitude, this.data.latitude),
+          maxDistance: this.data.searchRadius,
+          minDistance: 0
+        })
+      })
+      .get()
+      .then(res => {
+        const toilets = res.data.map(toilet => {
+          // Calculate distance in meters
+          const distance = this.calculateDistance(
+            this.data.latitude,
+            this.data.longitude,
+            toilet.location.coordinates[1],
+            toilet.location.coordinates[0]
+          );
+
+          return {
+            id: toilet._id,
+            name: toilet.name,
+            address: toilet.address,
+            latitude: toilet.location.coordinates[1],
+            longitude: toilet.location.coordinates[0],
+            distance: Math.round(distance)
+          };
+        });
+
+        // Sort by distance
+        toilets.sort((a, b) => a.distance - b.distance);
+
+        const markers = toilets.map(toilet => ({
+          id: toilet.id,
+          latitude: toilet.latitude,
+          longitude: toilet.longitude,
+          width: 30,
+          height: 30,
+          callout: {
+            content: toilet.name,
+            padding: 10,
+            borderRadius: 5,
+            display: 'BYCLICK'
+          }
+        }));
+
+        this.setData({
+          toilets: toilets,
+          markers: markers
+        });
+
+        wx.hideLoading();
+      })
+      .catch(err => {
+        console.error('Query error:', err);
+        wx.hideLoading();
+        wx.showToast({
+          title: 'Failed to find toilets',
+          icon: 'none'
+        });
+      });
+  },
+
+  calculateDistance: function (lat1, lon1, lat2, lon2) {
+    const R = 6371000; // Earth's radius in meters
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(φ1) * Math.cos(φ2) *
+      Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // Distance in meters
   },
 
   onMarkerTap: function (e) {

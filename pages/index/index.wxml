@@ -1,30 +1,26 @@
 <!--index.wxml-->
-<navigation-bar title="Weixin" back="{{false}}" color="black" background="#FFF"></navigation-bar>
-<scroll-view class="scrollarea" scroll-y type="list">
-  <view class="container">
-    <!-- Map Section -->
-    <view class="map-section">
-      <map
-        id="toiletMap"
-        class="map"
-        longitude="{{longitude}}"
-        latitude="{{latitude}}"
-        scale="{{scale}}"
-        markers="{{markers}}"
-        show-location="true"
-        bindmarkertap="onMarkerTap"
-      ></map>
-    </view>
+<navigation-bar title="Find Toilet" back="{{false}}" color="black" background="#FFF"></navigation-bar>
+<view class="container">
+  <!-- Map Section -->
+  <map
+    id="toiletMap"
+    class="map"
+    longitude="{{longitude}}"
+    latitude="{{latitude}}"
+    scale="{{scale}}"
+    markers="{{markers}}"
+    show-location="true"
+    bindmarkertap="onMarkerTap"
+  ></map>
 
-    <!-- Toilet List Section -->
-    <view class="toilet-list">
-      <view class="toilet-item" wx:for="{{toilets}}" wx:key="id" bindtap="onToiletTap" data-id="{{item.id}}">
-        <view class="toilet-info">
-          <view class="toilet-name">{{item.name}}</view>
-          <view class="toilet-address">{{item.address}}</view>
-          <view class="toilet-distance">{{item.distance}}m</view>
-        </view>
+  <!-- Toilet List Section -->
+  <scroll-view class="toilet-list" scroll-y>
+    <view class="toilet-item" wx:for="{{toilets}}" wx:key="id" bindtap="onToiletTap" data-id="{{item.id}}">
+      <view class="toilet-info">
+        <view class="toilet-name">{{item.name}}</view>
+        <view class="toilet-address">{{item.address}}</view>
+        <view class="toilet-distance">{{item.distance}}m</view>
       </view>
     </view>
-  </view>
-</scroll-view>
+  </scroll-view>
+</view>
