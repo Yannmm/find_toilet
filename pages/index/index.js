@@ -112,7 +112,8 @@ Page({
             longitude: toilet.longitude,
             width: 32,
             height: 32,
-            iconPath: '/images/toilet-marker.png',
+            iconPath: '/images/toilet-marker-active.png',
+            iconPathSelected: '/images/toilet-marker.png',
             callout: {
               content: toilet.name,
               padding: 10,
