@@ -9,7 +9,7 @@ Page({
     markers: [],
     toilets: [],
     searchRadius: 1000, // 1000 meters
-    isListCollapsed: false, // Add this to track list state
+    isListCollapsed: true, // Changed to true for initial collapsed state
     selectedToiletId: null,  // Add this to track selected toilet
     scrollToView: '' // Add this line
   },
@@ -212,6 +212,18 @@ Page({
   onTapExpandList: function () {
     this.setData({
       isListCollapsed: false
+    });
+  },
+
+  // Add this new function
+  onNavigateTap: function (e) {
+    const toilet = e.currentTarget.dataset.toilet;
+    wx.openLocation({
+      latitude: toilet.latitude,
+      longitude: toilet.longitude,
+      name: toilet.name,
+      address: toilet.address,
+      scale: 18
     });
   }
 });
