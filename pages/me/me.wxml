@@ -1,0 +1,6 @@
+<view class="container">
+  <view class="user-info">
+    <image class="avatar" src="/images/default-avatar.png"></image>
+    <text class="nickname">User</text>
+  </view>
+</view> 
