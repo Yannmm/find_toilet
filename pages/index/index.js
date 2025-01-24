@@ -1,4 +1,6 @@
 // index.js
+const amapFile = require('../../libs/amap-wx.js');
+
 Page({
   data: {
     latitude: 23.099994,
@@ -11,12 +13,10 @@ Page({
   },
 
   onLoad: function () {
-    // Initialize cloud
-    if (!wx.cloud) {
-      console.error('Please use WeChat version that supports cloud development');
-      return;
-    }
-    wx.cloud.init();
+    // Initialize AMap
+    this.amap = new amapFile.AMapWX({
+      key: 'b93e88fa6e3fee3cf918bd14b6c4e485' // Replace with your AMap key
+    });
 
     // Request location permission
     wx.authorize({
@@ -58,7 +58,7 @@ Page({
           latitude: res.latitude,
           longitude: res.longitude
         });
-        this.queryNearbyToilets();
+        this.searchNearbyToilets();
         wx.hideLoading();
       },
       fail: (err) => {
@@ -72,73 +72,71 @@ Page({
     });
   },
 
-  queryNearbyToilets: function () {
+  searchNearbyToilets: function () {
     wx.showLoading({
       title: 'Finding toilets...',
     });
 
-    // Get nearby toilets from cloud database
-    wx.cloud.database().collection('toilets')
-      .where({
-        location: wx.cloud.database().command.geoNear({
-          geometry: wx.cloud.database().Geo.Point(this.data.longitude, this.data.latitude),
-          maxDistance: this.data.searchRadius,
-          minDistance: 0
-        })
-      })
-      .get()
-      .then(res => {
-        const toilets = res.data.map(toilet => {
-          // Calculate distance in meters
-          const distance = this.calculateDistance(
-            this.data.latitude,
-            this.data.longitude,
-            toilet.location.coordinates[1],
-            toilet.location.coordinates[0]
-          );
+    this.amap.getPoiAround({
+      query: '公厕|洗手间|toilet',
+      querytypes: '200300',
+      location: `${this.data.longitude},${this.data.latitude}`,
+      radius: this.data.searchRadius,
+      success: (data) => {
+        if (data && data.poisData) {
+          const toilets = data.poisData.map((poi, index) => {
+            // Calculate distance
+            const distance = this.calculateDistance(
+              this.data.latitude,
+              this.data.longitude,
+              parseFloat(poi.location.split(',')[1]),
+              parseFloat(poi.location.split(',')[0])
+            );
 
-          return {
-            id: toilet._id,
-            name: toilet.name,
-            address: toilet.address,
-            latitude: toilet.location.coordinates[1],
-            longitude: toilet.location.coordinates[0],
-            distance: Math.round(distance)
-          };
-        });
+            return {
+              id: index,
+              name: poi.name,
+              address: poi.address,
+              latitude: parseFloat(poi.location.split(',')[1]),
+              longitude: parseFloat(poi.location.split(',')[0]),
+              distance: Math.round(distance)
+            };
+          });
 
-        // Sort by distance
-        toilets.sort((a, b) => a.distance - b.distance);
+          // Sort by distance
+          toilets.sort((a, b) => a.distance - b.distance);
 
-        const markers = toilets.map(toilet => ({
-          id: toilet.id,
-          latitude: toilet.latitude,
-          longitude: toilet.longitude,
-          width: 30,
-          height: 30,
-          callout: {
-            content: toilet.name,
-            padding: 10,
-            borderRadius: 5,
-            display: 'BYCLICK'
-          }
-        }));
+          const markers = toilets.map(toilet => ({
+            id: toilet.id,
+            latitude: toilet.latitude,
+            longitude: toilet.longitude,
+            width: 32,
+            height: 32,
+            iconPath: '/images/toilet-marker.png',
+            callout: {
+              content: toilet.name,
+              padding: 10,
+              borderRadius: 5,
+              display: 'BYCLICK'
+            }
+          }));
 
-        this.setData({
-          toilets: toilets,
-          markers: markers
-        });
-
+          this.setData({
+            toilets: toilets,
+            markers: markers
+          });
+        }
         wx.hideLoading();
-      })
-      .catch(err => {
-        console.error('Query error:', err);
+      },
+      fail: (err) => {
+        console.error('Search error:', err);
         wx.hideLoading();
         wx.showToast({
           title: 'Failed to find toilets',
           icon: 'none'
         });
-      });
+      }
+    });
   },
 
   calculateDistance: function (lat1, lon1, lat2, lon2) {
