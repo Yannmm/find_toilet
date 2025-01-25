@@ -23,6 +23,7 @@
     enhanced="true"
     show-scrollbar="false"
   >
+
     <view 
       id="toilet-{{item.id}}"
       class="toilet-item {{selectedToiletId === item.id ? 'toilet-item-selected' : ''}}" 

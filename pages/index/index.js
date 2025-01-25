@@ -5,13 +5,14 @@ Page({
   data: {
     latitude: 23.099994,
     longitude: 113.324520,
-    scale: 14,
+    scale: 16,
     markers: [],
     toilets: [],
     searchRadius: 1000, // 1000 meters
-    isListCollapsed: true, // Changed to true for initial collapsed state
+    isListCollapsed: false, // Changed to true for initial collapsed state
     selectedToiletId: null,  // Add this to track selected toilet
-    scrollToView: '' // Add this line
+    scrollToView: '',
+    isFirstLoad: true, // Add this line
   },
 
   onLoad: function () {
@@ -170,7 +171,9 @@ Page({
       this.setData({
         markers: markers,
         selectedToiletId: markerId,
-        isListCollapsed: false  // Expand list to show selected item
+        isListCollapsed: false,  // Expand list to show selected item
+        latitude: toilet.latitude,  // Center map on selected marker
+        longitude: toilet.longitude  // Center map on selected marker
       }, () => {
         // Wait for list expansion animation
         setTimeout(() => {
@@ -194,14 +197,25 @@ Page({
 
       this.setData({
         markers: markers,
-        selectedToiletId: toiletId
+        selectedToiletId: toiletId,
+        latitude: toilet.latitude,  // Center map on selected marker
+        longitude: toilet.longitude  // Center map on selected marker
       });
+
+      // 通过 `includePoints` 平滑移动到中心
+      // const mapCtx = wx.createMapContext('toiletMap'); // 获取地图上下文
+      // mapCtx.moveToLocation({
+      //   latitude: toilet.latitude,
+      //   longitude: toilet.longitude,
+      //   duration: 5000  // 移动的动画时长，单位毫秒
+      // });
     }
   },
 
   // Add these new functions
   onRegionChange: function (e) {
-    if (e.type === 'begin') {
+
+    if (e.type === 'begin' && e.detail?.causedBy === 'gesture') {
       // User starts panning the map
       this.setData({
         isListCollapsed: true
