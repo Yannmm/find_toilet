@@ -34,6 +34,7 @@
     >
       <view class="toilet-info">
         <view class="main-info">
+          <view class="toilet-number">{{index + 1}}</view> <!-- Add this line -->
           <view class="toilet-name">{{item.name}}</view>
           <view class="toilet-address">{{item.address}}</view>
           <view class="toilet-distance">{{item.distance}}m</view>

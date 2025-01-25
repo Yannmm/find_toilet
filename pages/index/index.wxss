@@ -102,4 +102,17 @@ page {
   height: 40rpx;
 }
 
+.toilet-number {
+  font-size: 32rpx; /* Match the font size of the name */
+  font-weight: bold;
+  margin-right: 10rpx;
+  color: #1aad19;
+  display: inline-block; /* Ensure it is inline with the name */
+}
+
+.toilet-name {
+  font-size: 32rpx; /* Ensure it is inline with the number */
+  display: inline-block;
+}
+
 /* ... keep existing toilet item styles ... */

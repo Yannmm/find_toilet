@@ -109,7 +109,7 @@ Page({
           // Sort by distance
           toilets.sort((a, b) => a.distance - b.distance);
 
-          const markers = toilets.map(toilet => ({
+          const markers = toilets.map((toilet, index) => ({
             id: toilet.id,
             latitude: toilet.latitude,
             longitude: toilet.longitude,
@@ -117,6 +117,16 @@ Page({
             height: 32,
             iconPath: '/images/toilet-marker-active.png',
             iconPathSelected: '/images/toilet-marker.png',
+            label: {
+              content: `${index + 1}`,
+              color: '#1aad19', // Match the color of the list number
+              fontSize: 16, // Smaller font size
+              fontWeight: 'bold', // Match the font weight of the list number
+              borderRadius: 10,
+              bgColor: '#fff',
+              padding: 5,
+              textAlign: 'center'
+            },
             callout: {
               content: toilet.name,
               padding: 10,
