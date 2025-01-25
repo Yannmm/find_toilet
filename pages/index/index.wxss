@@ -92,14 +92,14 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #1aad19;
+
   border-radius: 50%;
   flex-shrink: 0;
 }
 
 .nav-icon {
-  width: 40rpx;
-  height: 40rpx;
+  width: 70rpx;
+  height: 70rpx;
 }
 
 .toilet-number {
