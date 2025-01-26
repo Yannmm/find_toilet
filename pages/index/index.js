@@ -18,7 +18,7 @@ Page({
   onLoad: function () {
     // Initialize AMap
     this.amap = new amapFile.AMapWX({
-      key: 'b93e88fa6e3fee3cf918bd14b6c4e485' // Replace with your AMap key
+      key: '' // Replace with your AMap key
     });
 
     // Request location permission
