@@ -21,35 +21,44 @@ Page({
       key: '' // Replace with your AMap key
     });
 
-    // Request location permission
-    wx.authorize({
-      scope: 'scope.userLocation',
-      success: () => {
-        this.getCurrentLocation();
-      },
-      fail: () => {
-        wx.showModal({
-          title: 'Permission Required',
-          content: 'Please allow location access to find nearby toilets',
-          success: (res) => {
-            if (res.confirm) {
-              wx.openSetting({
+    wx.getSetting({
+      success: (res) => {
+        if (!res.authSetting['scope.userLocation']) {
+          // 用户未授权定位权限
+          // Request location permission
+          wx.authorize({
+            scope: 'scope.userLocation',
+            success: () => {
+              this.getCurrentLocation();
+            },
+            fail: () => {
+              wx.showModal({
+                title: '申请获取当前位置权限',
+                content: '用于查询附近卫生间',
                 success: (res) => {
-                  if (res.authSetting['scope.userLocation']) {
-                    this.getCurrentLocation();
+                  if (res.confirm) {
+                    wx.openSetting({
+                      success: (res) => {
+                        if (res.authSetting['scope.userLocation']) {
+                          this.getCurrentLocation();
+                        }
+                      }
+                    });
                   }
                 }
               });
             }
-          }
-        });
+          });
+        } else {
+          this.getCurrentLocation();
+        }
       }
     });
   },
 
   getCurrentLocation: function () {
     wx.showLoading({
-      title: 'Getting location...',
+      title: '正在获取当前位置...',
     });
 
     wx.getLocation({
@@ -68,8 +77,8 @@ Page({
         console.error('Location error:', err);
         wx.hideLoading();
         wx.showToast({
-          title: 'Unable to get location',
-          icon: 'none'
+          title: '无法获取当前位置',
+          icon: 'error'
         });
       }
     });

@@ -27,7 +27,7 @@
   "lazyCodeLoading": "requiredComponents",
   "permission": {
     "scope.userLocation": {
-      "desc": "获取位置以搜索厕所"
+      "desc": "获取位置以搜索附近卫生间"
     }
   },
   "requiredPrivateInfos": [
